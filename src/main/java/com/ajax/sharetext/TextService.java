@@ -34,8 +34,8 @@ public class TextService {
 
     public void updateExpiryDatePassword(Text text) {
         Long id = repository.findIdByUrl(text.getUrl());
-        Optional<Text> optinalText = repository.findById(id);
-        Text existtext = optinalText.get();
+        Optional<Text> optionalText = repository.findById(id);
+        Text existtext = optionalText.get();
         if (!"".equals(text.getPassword())) {
             existtext.setPassword(text.getPassword());
             existtext.setHasPassword(true);

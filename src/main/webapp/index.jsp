@@ -95,129 +95,129 @@
         </main>
 
         <script>
-//
-//            const $modal = $('#modal');
-//            const mPassword = $('#modalPassword');
-//
-//            $(window).on('click', function (event) {
-//                if ($(event.target).is($modal)) {
-//                    $modal.addClass('hidden');
-//                }
-//            });
-//
-//            $(window).on('click', function (event) {
-//                if ($(event.target).is(mPassword)) {
-//                    mPassword.addClass('hidden');
-//                }
-//            });
-//
-//            $('#share', 'modalPassword').on('click', function () {
-//                $('#modal').removeClass('hidden');
-//            });
-//
-//            $(document).ready(function () {
-//            <c:if test="${hasPassword}">
-//                $('#passwordModal').removeClass('hidden');
-//            </c:if>
-//
-//            <c:if test="!${textFound}">
-//                alert("Text Not Found");
-//            </c:if>
-//
-//                $('#unlock').click(function () {
-//                    $.ajax({
-//                        url: '${pageContext.request.contextPath}/checkPassword',
-//                        type: 'POST',
-//                        contentType: 'application/json',
-//                        data: JSON.stringify({url: '${url}', password: $('#checkPassword').val()}),
-//                        dataType: 'text',
-//                        success: function (data) {
-//                            if (data === '') {
-//                                $('#errorMessage').show();
-//                            } else {
-//                                var parsedData = JSON.parse(data);
-//                                $('#passwordModal').hide();
-//                                $('#text').val(parsedData.text);
-//                            }
-//                        },
-//                        error: function (error) {
-//                            console.error('Error submitting data: ', error);
-//                            alert('Error occurred while generating URL.');
-//                        }
-//                    });
-//                });
-//
-//                var urlPath = window.location.pathname.trim();
-//                if (urlPath.length > 11) {
-//                    $.ajax({
-//                        url: url, // sample API endpoint
-//                        type: 'GET', // or 'POST', 'PUT', etc.
-//                        dataType: 'json', // expected response data type
-//                        success: function (response) {
-//                            console.log('Success:', response);
-//                        },
-//                        error: function (xhr, status, error) {
-//                            console.error('Error:', error);
-//                        }
-//                    });
-//
-//                    $('#share').hide();
-//                }
-//
-//                $('#copy').on('click', function () {
-//                    navigator.clipboard.writeText($('#text').val());
-//                });
-//
-//                let debounceTimeout;
-//
-//                $('#text').on('click', function () {
-//                    var text = $(this).val();
-//                    var url = window.location.pathname.trim();
-//                    clearTimeout(debounceTimeout);
-//                    debounceTimeout = setTimeout(function () {
-//                        if (url.length > 11) {
-//                            var data = {url: '${text.url}', text: text};
-//                            $.ajax({
-//                                url: '${pageContext.request.contextPath}/update',
-//                                type: 'POST',
-//                                contentType: 'application/json',
-//                                data: JSON.stringify(data)
-//                            });
-//                        }
-//                    }, 2000);
-//                });
-//
-//            });
-//
-//            $('#share').on('click', function () {
-//                const text = $('#text').val();
-//                $.ajax({
-//                    url: '${pageContext.request.contextPath}/save',
-//                    type: 'POST',
-//                    contentType: 'application/json',
-//                    data: JSON.stringify({text: text}),
-//                    dataType: 'text',
-//                    success: function (url) {
-//                        $('#url').text(window.location.href + url);
-//                        $modal.removeClass('hidden');
-//                    },
-//                    error: function (error) {
-//                        console.error('Error submitting data: ', error);
-//                        alert('Error occurred while generating URL.');
-//                    }
-//                });
-//            });
-//
-//            $(document).on('click', function (event) {
-//                const $modalContent = $modal.find('.rounded-2xl');
-//                if ($modal.is(':visible') && !$modalContent.is(event.target) && $modalContent.has(event.target).length === 0) {
-//                    $modal.addClass('hidden');
-//                }
-//            });
-//
-//            $('#copyUrl').on('click', function () {
-//                navigator.clipboard.writeText($('#url').text());
-//            });
+
+            const $modal = $('#modal');
+            const mPassword = $('#modalPassword');
+
+            $(window).on('click', function (event) {
+                if ($(event.target).is($modal)) {
+                    $modal.addClass('hidden');
+                }
+            });
+
+            $(window).on('click', function (event) {
+                if ($(event.target).is(mPassword)) {
+                    mPassword.addClass('hidden');
+                }
+            });
+
+            $('#modalPassword').on('click', function () {
+                $('#modal').removeClass('hidden');
+            });
+
+            $(document).ready(function () {
+            <c:if test="${hasPassword}">
+                $('#passwordModal').removeClass('hidden');
+            </c:if>
+
+            <c:if test="!${textFound}">
+                alert("Text Not Found");
+            </c:if>
+
+                $('#unlock').click(function () {
+                    $.ajax({
+                        url: '${pageContext.request.contextPath}/checkPassword',
+                        type: 'POST',
+                        contentType: 'application/json',
+                       data: JSON.stringify({url: '${url}', password: $('#checkPassword').val()}),
+                       dataType: 'text',
+                        success: function (data) {
+                            if (data === '') {
+                               $('#errorMessage').show();
+                            } else {
+                                var parsedData = JSON.parse(data);
+                                $('#passwordModal').hide();
+                                $('#text').val(parsedData.text);
+                            }
+                        },
+                        error: function (error) {
+                            console.error('Error submitting data: ', error);
+                            alert('Error occurred while generating URL.');
+                        }
+                    });
+                });
+
+                var urlPath = window.location.pathname.trim();
+               if (urlPath.length > 11) {
+                    $.ajax({
+                        url: url, // sample API endpoint
+                        type: 'GET', // or 'POST', 'PUT', etc.
+                        dataType: 'json', // expected response data type
+                        success: function (response) {
+                            console.log('Success:', response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', error);
+                        }
+                    });
+
+                    $('#share').hide();
+                }
+
+                $('#copy').on('click', function () {
+                    navigator.clipboard.writeText($('#text').val());
+                });
+                let debounceTimeout;
+
+                $('#text').on('click', function () {
+                    var text = $(this).val();
+                    var url = window.location.pathname.trim();
+                    clearTimeout(debounceTimeout);
+                    debounceTimeout = setTimeout(function () {
+                        if (url.length > 11) {
+                            var data = {url: '${text.url}', text: text};
+                            $.ajax({
+                                url: '${pageContext.request.contextPath}/update',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify(data)
+                            });
+                        }
+                    }, 2000);
+                });
+
+            });
+
+            $('#share').on('click', function () {
+                $('#modal').removeClass('hidden');
+                const text = $('#text').val();
+               $.ajax({
+                    url: '${pageContext.request.contextPath}/save',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({text: text}),
+                    dataType: 'text',
+                    success: function (url) {
+                        $('#url').text(window.location.href + url);
+                        $modal.removeClass('hidden');
+                    },
+                   error: function (error) {
+                        console.error('Error submitting data: ', error);
+                       alert('Error occurred while generating URL.');
+                    }
+                });
+            });
+
+            $(document).on('click', function (event) {
+                const $modalContent = $modal.find('.rounded-2xl');
+                if ($modal.is(':visible') && !$modalContent.is(event.target) && $modalContent.has(event.target).length === 0) {
+                    $modal.addClass('hidden');
+                }
+            });
+
+            $('#copyUrl').on('click', function () {
+                navigator.clipboard.writeText($('#url').text());
+            });
 
             $(document).ready(function () {
                 var urlPath = window.location.pathname.trim();
