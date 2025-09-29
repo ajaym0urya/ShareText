@@ -99,6 +99,8 @@ public class Text {
         this.hasPassword = hasPassword;
     }
 
-    
-
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
