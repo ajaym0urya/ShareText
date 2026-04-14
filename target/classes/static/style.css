@@ -1,0 +1,45 @@
+/* Custom scrollbar and animations */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+    background: #374151; 
+    border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #4B5563; 
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .7; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@layer utilities {
+    .word-break {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+}
+
+/* Base custom styles */
+body {
+    background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #030712 50%, #030712 100%);
+    background-attachment: fixed;
+}
+textarea::selection, input::selection {
+    background-color: rgba(99, 102, 241, 0.3);
+}

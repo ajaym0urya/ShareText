@@ -1,0 +1,11 @@
+com\sharetext\service\SharedTextService.class
+com\sharetext\dto\MetadataResponse.class
+com\sharetext\model\SharedText.class
+com\sharetext\dto\AccessRequest.class
+com\sharetext\dto\ShareRequest.class
+com\sharetext\util\PayloadCrypto.class
+com\sharetext\repository\SharedTextRepository.class
+com\sharetext\ShareTextApplication.class
+com\sharetext\dto\ContentResponse.class
+com\sharetext\controller\SharedTextController.class
+com\sharetext\config\SecurityConfig.class
