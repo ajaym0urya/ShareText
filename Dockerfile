@@ -5,7 +5,7 @@ FROM openjdk:27-ea-trixie
 WORKDIR /app
 
 # Copy jar file
-COPY target/app.jar app.jar
+COPY target/*.jar app.jar
 
 # Cloud Run uses this port
 ENV PORT=8080
