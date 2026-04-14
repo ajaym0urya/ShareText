@@ -1,5 +1,5 @@
 # Use stable lightweight Java
-FROM openjdk:21-jdk-slim
+FROM openjdk:27-ea-trixie
 
 # Set working directory
 WORKDIR /app
