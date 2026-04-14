@@ -23,7 +23,8 @@ steps:
       '--image','asia-south1-docker.pkg.dev/$PROJECT_ID/sharetext-repo/sharetext',
       '--region','asia-south1',
       '--platform','managed',
-      '--allow-unauthenticated'
+      '--allow-unauthenticated',
+      '--set-env-vars=DB_URL=jdbc:mysql://[YOUR_PROD_DB_IP]:3306/sharetext,DB_USERNAME=[ID],DB_PASSWORD=[PASS]'
     ]
 
 images:
