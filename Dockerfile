@@ -1,14 +1,15 @@
-# Use lightweight Java image
-FROM openjdk:27-ea-trixie
+# Use stable lightweight Java
+FROM openjdk:21-jdk-slim
 
 # Set working directory
 WORKDIR /app
 
 # Copy jar file
-COPY target/*.jar app.jar
+COPY target/app.jar app.jar
 
-# Expose port (change if needed)
+# Cloud Run uses this port
+ENV PORT=8080
 EXPOSE 8080
 
-# Run app
+# Run application
 ENTRYPOINT ["java","-jar","app.jar"]
