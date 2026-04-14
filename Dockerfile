@@ -5,4 +5,4 @@ COPY /target/*.jar app.jar
 EXPOSE 8080
 ENV PORT=8080
 
-ENTRYPOINT ["-jar","app.jar","--server.port=${PORT}","--server.address=0.0.0.0"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
