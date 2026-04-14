@@ -1,0 +1,5 @@
+target/*
+!target/app.jar
+.git
+.gitignore
+node_modules
