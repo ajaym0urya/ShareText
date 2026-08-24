@@ -20,8 +20,12 @@ public class SharedTextService {
 
     private final SharedTextRepository repository;
     private final PasswordEncoder passwordEncoder;
-
-
+    public SharedTextService(
+            SharedTextRepository repository,
+            PasswordEncoder passwordEncoder) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
 	public String createSharedText(ShareRequest request) {
         SharedText text = new SharedText();

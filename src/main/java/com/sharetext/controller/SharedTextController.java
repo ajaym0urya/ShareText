@@ -13,29 +13,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/texts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") 
+@CrossOrigin(origins = "*")
 public class SharedTextController {
 
-    private final SharedTextService service;
+    private final SharedTextService service ;
 
+    public SharedTextController(SharedTextService service) {
+        this.service = service;
+    }
     @PostMapping
     public ResponseEntity<?> createSharedText(@RequestBody ShareRequest request) {
         try {
-            // Decrypt the payload fields here
-            try {
-                if (request.getContent() != null) {
-                    request.setContent(com.sharetext.util.PayloadCrypto.decrypt(request.getContent()));
-                }
-                if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-                    request.setPassword(com.sharetext.util.PayloadCrypto.decrypt(request.getPassword()));
-                }
-                if (request.getCustomAlias() != null && !request.getCustomAlias().isEmpty()) {
-                    request.setCustomAlias(com.sharetext.util.PayloadCrypto.decrypt(request.getCustomAlias()));
-                }
-            } catch (Exception e) {
-                 return ResponseEntity.badRequest().body(Map.of("error", "Failed to decrypt payload: " + e.getMessage()));
-            }
-
             String id = service.createSharedText(request);
             return ResponseEntity.ok(Map.of("id", id));
         } catch (Exception e) {
@@ -55,9 +43,6 @@ public class SharedTextController {
     @PostMapping("/{id}/access")
     public ResponseEntity<?> accessContent(@PathVariable String id, @RequestBody(required = false) AccessRequest request) {
         try {
-            if (request != null && request.getPassword() != null && !request.getPassword().isEmpty()) {
-                request.setPassword(com.sharetext.util.PayloadCrypto.decrypt(request.getPassword()));
-            }
             return ResponseEntity.ok(service.accessContent(id, request));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
