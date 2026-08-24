@@ -37,6 +37,45 @@ const errorTitle = document.getElementById('errorTitle');
 const errorMessage = document.getElementById('errorMessage');
 
 let currentViewId = null;
+let currentContentKey = null;
+
+function toBase64Url(bytes) {
+    let binary = '';
+    bytes.forEach(byte => binary += String.fromCharCode(byte));
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(value) {
+    const padded = value.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - value.length % 4) % 4);
+    const binary = atob(padded);
+    return Uint8Array.from(binary, character => character.charCodeAt(0));
+}
+
+async function encryptContent(content) {
+    const key = await window.crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']
+    );
+    const nonce = window.crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await window.crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: nonce }, key, new TextEncoder().encode(content)
+    );
+    const combined = new Uint8Array(nonce.length + ciphertext.byteLength);
+    combined.set(nonce);
+    combined.set(new Uint8Array(ciphertext), nonce.length);
+    const rawKey = new Uint8Array(await window.crypto.subtle.exportKey('raw', key));
+    return { ciphertext: toBase64Url(combined), key: toBase64Url(rawKey) };
+}
+
+async function decryptContent(encodedContent, encodedKey) {
+    const combined = fromBase64Url(encodedContent);
+    const key = await window.crypto.subtle.importKey(
+        'raw', fromBase64Url(encodedKey), { name: 'AES-GCM' }, false, ['decrypt']
+    );
+    const plaintext = await window.crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: combined.slice(0, 12) }, key, combined.slice(12)
+    );
+    return new TextDecoder().decode(plaintext);
+}
 
 // Routing logic
 window.addEventListener('hashchange', handleRoute);
@@ -44,8 +83,9 @@ document.addEventListener('DOMContentLoaded', handleRoute);
 
 function handleRoute() {
     const hash = window.location.hash.substring(1);
-    if (hash && hash.length > 0) {
-        showReadView(hash);
+    const separator = hash.lastIndexOf('.');
+    if (separator > 0 && separator < hash.length - 1) {
+        showReadView(hash.substring(0, separator), hash.substring(separator + 1));
     } else {
         showCreateView();
     }
@@ -62,7 +102,7 @@ function showCreateView() {
     setTimeout(() => textContent.focus(), 100);
 }
 
-async function showReadView(id) {
+async function showReadView(id, contentKey) {
     createView.classList.add('hidden');
     createView.classList.remove('flex');
     readView.classList.remove('hidden');
@@ -76,6 +116,7 @@ async function showReadView(id) {
     unlockError.classList.add('hidden');
     viewPassword.value = '';
     currentViewId = id;
+    currentContentKey = contentKey;
 
     try {
         const response = await fetch(`${API_BASE}/${id}/metadata`);
@@ -94,7 +135,7 @@ async function showReadView(id) {
             setTimeout(() => viewPassword.focus(), 100);
         } else {
             // Load content directly
-            await loadContent(id, null);
+            await loadContent(id, null, contentKey);
         }
 
     } catch (err) {
@@ -111,9 +152,9 @@ function showError(title, message) {
     errorMessage.textContent = message;
 }
 
-async function loadContent(id, password) {
+async function loadContent(id, password, contentKey) {
     try {
-        const payload = password ? { password: await encryptPayload(password) } : null;
+        const payload = password ? { password } : null;
         const res = await fetch(`${API_BASE}/${id}/access`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -135,7 +176,7 @@ async function loadContent(id, password) {
         passwordPrompt.classList.add('hidden');
         contentDisplay.classList.remove('hidden');
         contentDisplay.classList.add('flex');
-        readonlyContent.textContent = data.content;
+        readonlyContent.textContent = await decryptContent(data.content, contentKey);
 
     } catch (err) {
         showError('Access Error', err.message);
@@ -217,61 +258,18 @@ generateRandomAliasBtn.addEventListener('click', () => {
     customLinkAlias.value = result;
 });
 
-// Subtle encryption using Web Crypto API avoiding external libraries
-async function encryptPayload(text) {
-    if (!text) return null;
-    try {
-        const textEncoder = new TextEncoder();
-        // The fixed key bytes MUST match the server's SECRET_KEY
-        const keyBytes = new Uint8Array([
-            11, 22, 33, 44, 55, 66, 77, 88, 99, 10, 11, 12, 13, 14, 15, 16,
-            17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-        ]);
-        
-        const cryptoKey = await window.crypto.subtle.importKey(
-            "raw",
-            keyBytes,
-            { name: "AES-CBC" },
-            false,
-            ["encrypt"]
-        );
-        
-        const iv = window.crypto.getRandomValues(new Uint8Array(16));
-        
-        const encryptedBuffer = await window.crypto.subtle.encrypt(
-            { name: "AES-CBC", iv: iv },
-            cryptoKey,
-            textEncoder.encode(text)
-        );
-        
-        // Combine IV and Ciphertext
-        const combined = new Uint8Array(iv.length + encryptedBuffer.byteLength);
-        combined.set(iv, 0);
-        combined.set(new Uint8Array(encryptedBuffer), iv.length);
-        
-        // Convert to Base64
-        let base64String = "";
-        for (let i = 0; i < combined.length; i++) {
-            base64String += String.fromCharCode(combined[i]);
-        }
-        return btoa(base64String);
-    } catch (e) {
-        console.error("Encryption failed", e);
-        return text; // Fallback or handle differently
-    }
-}
-
 generateLinkBtn.addEventListener('click', async () => {
     const originalText = generateLinkBtn.innerHTML;
     generateLinkBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initializing Secure Link...';
     generateLinkBtn.disabled = true;
 
     try {
+        const encryptedContent = await encryptContent(textContent.value);
         const payload = {
-            content: await encryptPayload(textContent.value),
+            content: encryptedContent.ciphertext,
             expirationDate: calculateExpiry(expirationSelect.value),
-            password: sharePassword.value.trim() ? await encryptPayload(sharePassword.value.trim()) : null,
-            customAlias: customLinkAlias.value.trim() ? await encryptPayload(customLinkAlias.value.trim()) : null
+            password: sharePassword.value.trim() || null,
+            customAlias: customLinkAlias.value.trim() || null
         };
 
         const res = await fetch(API_BASE, {
@@ -291,7 +289,7 @@ generateLinkBtn.addEventListener('click', async () => {
         modalFormPhase.classList.add('hidden');
         modalResultPhase.classList.remove('hidden');
 
-        const link = `${window.location.origin}${window.location.pathname}#${data.id}`;
+        const link = `${window.location.origin}${window.location.pathname}#${data.id}.${encryptedContent.key}`;
         finalShareLink.value = link;
 
     } catch (err) {
@@ -332,7 +330,7 @@ unlockBtn.addEventListener('click', () => {
     unlockBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Decrypting...';
     unlockBtn.disabled = true;
 
-    loadContent(currentViewId, pwd).finally(() => {
+    loadContent(currentViewId, pwd, currentContentKey).finally(() => {
         unlockBtn.innerHTML = origHtml;
         unlockBtn.disabled = false;
     });
